@@ -15,7 +15,7 @@ public class CommentResponseDto {
     private Integer seq; // 순서
     private String description; // 내용
     private String writer; // 작성자
-    private Character isDeleted; // 삭제 여부
+    private Boolean isDeleted; // 삭제 여부
     private LocalDateTime createDate; // 생성일
     private LocalDateTime updateDate; // 수정일
 

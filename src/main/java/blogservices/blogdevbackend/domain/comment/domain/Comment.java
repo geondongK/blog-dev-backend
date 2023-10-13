@@ -16,8 +16,10 @@ import java.time.LocalDateTime;
 @Table(name = "comment")
 // 유효성 검사도 추가해야함.
 public class Comment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    //@Column(name = "id")
     private Long commentId; // PK
 
     @Column(length = 100)
@@ -41,7 +43,7 @@ public class Comment {
     @Column(length = 100)
     private String writer; // 작성자
 
-    private Character isDeleted; // 삭제 여부
+    private Boolean isDeleted; // 삭제 여부
 
     private LocalDateTime createDate = LocalDateTime.now(); // 생성일
     private LocalDateTime updateDate; // 수정일
@@ -51,11 +53,15 @@ public class Comment {
         this.updateDate = LocalDateTime.now();
     }
 
+    public void deleteUpdate() {
+        this.isDeleted = true;
+    }
+
 
     @Builder
     public Comment(Long postId, Long writerId
             , Long parentId, Integer commentGroup, Integer seq,
-                   String description, String writer, Character isDeleted) {
+                   String description, String writer, Boolean isDeleted) {
         this.postId = postId;
         this.writerId = writerId;
         this.parentId = parentId;

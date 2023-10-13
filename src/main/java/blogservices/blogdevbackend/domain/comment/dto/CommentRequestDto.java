@@ -12,10 +12,8 @@ public class CommentRequestDto {
     private Long writerId; // 작성자 PK
     private Long parentId; // 부모 댓글 PK
     private Integer commentGroup; // 부모 댓글 PK
-    private Integer seq; // 순서
     private String description; // 내용
     private String writer; // 작성자
-    private Character isDeleted; // 삭제여부
 
     public Comment toEntity() {
         return Comment.builder()
@@ -23,10 +21,8 @@ public class CommentRequestDto {
                 .writerId(writerId)
                 .parentId(parentId)
                 .commentGroup(commentGroup)
-                .seq(seq)
                 .description(description)
                 .writer(writer)
-                .isDeleted(isDeleted)
                 .build();
     }
 

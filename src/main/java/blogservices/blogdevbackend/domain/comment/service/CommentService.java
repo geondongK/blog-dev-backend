@@ -7,11 +7,13 @@ import java.util.List;
 
 public interface CommentService {
 
-    Long save(CommentRequestDto request);
+    List<CommentResponseDto> save(CommentRequestDto request);
 
     List<CommentResponseDto> getComment(long postId);
 
-    Long update(Long commentId, CommentRequestDto request);
+    Long update(long commentId, CommentRequestDto request);
+
+    Long existsByComment(long commentId);
 
     void deleteComment(long commentId);
 

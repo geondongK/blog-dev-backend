@@ -21,7 +21,7 @@ public class CommentController {
 
     /* 댓글 작성 */
     @PostMapping(value = "/comment")
-    public Long createComment(@RequestBody CommentRequestDto request) {
+    public List<CommentResponseDto> createComment(@RequestBody CommentRequestDto request) {
         return service.save(request);
     }
 
@@ -37,10 +37,15 @@ public class CommentController {
         return service.update(commentId, request);
     }
 
+    /* 대댓글 존재 시 isDeleted 업데이트 */
+    @PutMapping(value = "/comment/existComment/{commentId}")
+    public Long existsByComment(@PathVariable long commentId) {
+        return service.existsByComment(commentId);
+    }
+
     /* 댓글 삭제 */
     @DeleteMapping(value = "/comment/{commentId}")
-    public ResponseEntity<ResultDtoUtil<String>> deleteComment(@PathVariable long commentId) {
+    public void deleteComment(@PathVariable long commentId) {
         service.deleteComment(commentId);
-        return ResponseEntity.ok(ResultDtoUtil.response(HttpStatus.OK, HttpStatus.OK.toString(), "댓글 삭제 성공"));
     }
 }

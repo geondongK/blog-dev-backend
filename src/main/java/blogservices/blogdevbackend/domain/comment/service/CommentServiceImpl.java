@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -24,13 +25,11 @@ public class CommentServiceImpl implements CommentService {
 
     /* 댓글 작성 */
     @Override
-    public Long save(CommentRequestDto request) {
+    public List<CommentResponseDto> save(CommentRequestDto request) {
 
-        Comment entity = repository.save(request.toEntity());
+        List<Comment> entity = Collections.singletonList(repository.save(request.toEntity()));
 
-        log.info("commentSave::entity = {}", entity);
-
-        return entity.getCommentId();
+        return entity.stream().map(CommentResponseDto::new).collect(Collectors.toList());
 
     }
 
@@ -46,15 +45,30 @@ public class CommentServiceImpl implements CommentService {
 
     /* 댓글 수정 */
     @Override
-    public Long update(Long commentId, CommentRequestDto request) {
+    public Long update(long commentId, CommentRequestDto request) {
+
+        log.info("comment update = {}", request);
+
         Comment entity = repository.findById(commentId).orElseThrow();
         entity.update(request.getDescription());
 
         return commentId;
     }
 
+    /* 대댓글 존재 시 isDeleted 업데이트 */
+    @Override
+    public Long existsByComment(long commentId) {
+
+        Comment entity = repository.getReferenceById(commentId);
+
+        log.info("deleteId = {} ", String.valueOf(entity.getCommentId()));
+
+        entity.deleteUpdate();
+
+        return commentId;
+    }
+
     /* 댓글 삭제 */
-    // 다시 찾아보기
     @Override
     public void deleteComment(long commentId) {
         repository.deleteById(commentId);
