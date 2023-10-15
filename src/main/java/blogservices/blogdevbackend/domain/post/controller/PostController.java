@@ -1,69 +1,72 @@
 package blogservices.blogdevbackend.domain.post.controller;
 
-import blogservices.blogdevbackend.domain.post.dto.PostRequestDTO;
-import blogservices.blogdevbackend.domain.post.dto.PostResponseDTO;
+import blogservices.blogdevbackend.domain.post.domain.Post;
+import blogservices.blogdevbackend.domain.post.dto.PostRequestDto;
+import blogservices.blogdevbackend.domain.post.dto.PostResponseDto;
 import blogservices.blogdevbackend.domain.post.exception.Constants;
-import blogservices.blogdevbackend.domain.post.exception.PostException;
+//import blogservices.blogdevbackend.domain.post.exception.PostException;
 import blogservices.blogdevbackend.domain.post.service.PostService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1")
-// @RequiredArgsConstructor 생성자 주입
+// 보안으로 auth 임시로 설정
+@RequestMapping("/api/v1/auth")
+@RequiredArgsConstructor
+@Slf4j
 public class PostController {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(PostController.class);
-
-    private PostService service;
-
-    public PostController(PostService postService) {
-        this.service = postService;
-    }
-
-    @PostMapping(value = "/test")
-    public void exceptionTest() throws PostException {
-        throw new PostException(Constants.ExceptionClass.POST, HttpStatus.FORBIDDEN, "접근이 금지되었습니다.");
-    }
-
+    private final PostService service;
 
     /* 전체 게시물 */
-    @GetMapping(value = "/posts")
-    public List<PostResponseDTO> getAllPosts() {
-        return service.getAllPost();
+    @GetMapping(value = "/post")
+    public List<PostResponseDto> getAllPost(int limit, int offset) {
+        return service.getAllPost(limit, offset);
     }
 
     /* 해당 게시물 */
-    @GetMapping(value = "/posts/{postId}")
-    public List<PostResponseDTO> getPost(@PathVariable long postId) {
+    @GetMapping(value = "/post/{postId}")
+    public List<PostResponseDto> getPost(@PathVariable long postId) {
 
-        // long startTime = System.currentTimeMillis(); = 처리과정 시간 측정
-        // LOGGER.info("[PostController] Response :: postId = {}", postId);
-        LOGGER.info("postId = {}", postId);
+        log.info("postController::postId = {}", postId);
 
-        List<PostResponseDTO> postDTO = service.getPost(postId);
-        return postDTO;
+        return service.getPost(postId);
     }
 
     /* 게시물 작성 */
-    @PostMapping(value = "/posts")
-    public Long createPost(@RequestBody PostRequestDTO postRequestDTO) {
-        return service.createPost(postRequestDTO);
+    @PostMapping(value = "/post")
+    public Long createPost(@RequestBody PostRequestDto request) {
+        return service.createPost(request);
     }
 
     /* 게시물 수정 */
-    @PutMapping(value = "/posts/{postId}")
-    public Long updatePost(@PathVariable long postId, @RequestBody PostRequestDTO postRequestDTO) {
-        return service.updatePost(postId, postRequestDTO);
+    @PutMapping(value = "/post/{postId}")
+    public Long updatePost(@PathVariable long postId, @RequestBody PostRequestDto request) {
+        return service.updatePost(postId, request);
     }
 
     /* 게시물 삭제 */
-    @DeleteMapping(value = "/posts/{postId}")
+    @DeleteMapping(value = "/post/{postId}")
     public void deletePost(@PathVariable long postId) {
         service.deletePost(postId);
     }
+
+    /* 게시물 검색 */
+    @GetMapping(value = "/post/search")
+    public List<PostResponseDto> searchPost(@RequestParam(value = "q", required = false) String q, int limit, int offset) {
+        return service.searchPost(q, limit, offset);
+    }
+
 }
