@@ -9,7 +9,11 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<User> findByEmail(String email);
+    User findByEmail(String email);
 
-    boolean existsByEmail(String email); // 중복 가입 방지
+    boolean existsByEmail(String email); // 이메일 중복 가입 방지
+
+    boolean existsByName(String name); // 별명 중복 가입 방지
+
+    User findByProviderId(Long providerId); // OAuth providerId 회원 조회
 }
