@@ -4,17 +4,22 @@ import blogservices.blogdevbackend.domain.post.domain.Post;
 import blogservices.blogdevbackend.domain.post.dto.PostRequestDto;
 import blogservices.blogdevbackend.domain.post.dto.PostResponseDto;
 import blogservices.blogdevbackend.domain.post.repository.PostRepository;
+import blogservices.blogdevbackend.global.common.S3Utils;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,12 +31,15 @@ import java.util.stream.Collectors;
 public class PostServiceImpl implements PostService {
     private final PostRepository repository;
 
+    private final AmazonS3 amazonS3;
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
+
     @Override
     public List<PostResponseDto> getAllPost(int limit, int offset) {
         // limit != 0;
         int page = offset / limit;
-
-        log.info("limit = {}, offset = {}", limit, page);
 
         // Sort sort = Sort.by(Sort.Direction.DESC, "id", "createDate");
         List<Post> entity = repository.findSliceBy(PageRequest.of(page, limit));
@@ -42,6 +50,8 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<PostResponseDto> getPost(long postId) {
         Optional<Post> entity = repository.findById(postId);
+
+        entity.get().increaseHits(); // 조회 수 증가
 
         return entity.stream().map(PostResponseDto::new).collect(Collectors.toList());
     }
@@ -81,5 +91,29 @@ public class PostServiceImpl implements PostService {
 
         return entity.stream().map(PostResponseDto::new).collect(Collectors.toList());
 
+    }
+
+    public String uploadFile(MultipartFile file) {
+        try {
+
+            log.info("file = {}", file.getOriginalFilename());
+
+            //String originalFilename = file.getOriginalFilename();
+
+            String originalFilename = S3Utils.buildFileName(file.getOriginalFilename());
+
+
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(file.getSize());
+            metadata.setContentType(file.getContentType());
+
+
+            amazonS3.putObject(bucket, originalFilename, file.getInputStream(), metadata);
+            // return amazonS3.getUrl(bucket, originalFilename).toString();
+            return null;
+        } catch (Exception e) {
+            log.error("Exception::Err_Msg = {}", e.getStackTrace()[0]);
+            return "실패";
+        }
     }
 }

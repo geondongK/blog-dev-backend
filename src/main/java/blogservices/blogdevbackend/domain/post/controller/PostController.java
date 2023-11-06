@@ -16,14 +16,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-// 보안으로 auth 임시로 설정
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 @Slf4j
 public class PostController {
@@ -67,6 +68,12 @@ public class PostController {
     @GetMapping(value = "/post/search")
     public List<PostResponseDto> searchPost(@RequestParam(value = "q", required = false) String q, int limit, int offset) {
         return service.searchPost(q, limit, offset);
+    }
+
+    /* 파일 업로드 */
+    @PostMapping(value = "/upload")
+    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(service.uploadFile(file));
     }
 
 }
