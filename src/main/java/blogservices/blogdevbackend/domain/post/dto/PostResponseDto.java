@@ -14,7 +14,7 @@ public class PostResponseDto {
     private String title; // 제목
     private String description; // 내용
     private String writer; // 작성자
-    private Integer view; // 조회수
+    private Integer hits; // 조회수
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createDate; // 생성일
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -26,7 +26,7 @@ public class PostResponseDto {
         this.title = entity.getTitle();
         this.description = entity.getDescription();
         this.writer = entity.getWriter();
-        this.view = entity.getView();
+        this.hits = entity.getHits();
         this.createDate = entity.getCreateDate();
         this.updateDate = entity.getUpdateDate();
     }
