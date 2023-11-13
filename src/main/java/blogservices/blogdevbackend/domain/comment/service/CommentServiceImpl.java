@@ -27,6 +27,8 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentResponseDto> save(CommentRequestDto request) {
 
+        log.info("comment:request = {}", request);
+
         List<Comment> entity = Collections.singletonList(repository.save(request.toEntity()));
 
         return entity.stream().map(CommentResponseDto::new).collect(Collectors.toList());
@@ -35,10 +37,8 @@ public class CommentServiceImpl implements CommentService {
 
     /* 특정 댓글 조회 */
     @Override
-    public List<CommentResponseDto> getComment(long postId) {
+    public List<CommentResponseDto> getComment(int postId) {
         List<Comment> entity = repository.findByPostId(postId);
-
-        log.info("commetService::getComment = {}", postId);
 
         return entity.stream().map(CommentResponseDto::new).collect(Collectors.toList());
     }
@@ -46,8 +46,6 @@ public class CommentServiceImpl implements CommentService {
     /* 댓글 수정 */
     @Override
     public Long update(long commentId, CommentRequestDto request) {
-
-        log.info("comment update = {}", request);
 
         Comment entity = repository.findById(commentId).orElseThrow();
         entity.update(request.getDescription());
@@ -60,8 +58,6 @@ public class CommentServiceImpl implements CommentService {
     public Long existsByComment(long commentId) {
 
         Comment entity = repository.getReferenceById(commentId);
-
-        log.info("deleteId = {} ", String.valueOf(entity.getCommentId()));
 
         entity.deleteUpdate();
 
