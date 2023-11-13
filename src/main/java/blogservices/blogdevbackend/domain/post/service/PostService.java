@@ -1,10 +1,7 @@
 package blogservices.blogdevbackend.domain.post.service;
 
-import blogservices.blogdevbackend.domain.post.domain.Post;
 import blogservices.blogdevbackend.domain.post.dto.PostRequestDto;
 import blogservices.blogdevbackend.domain.post.dto.PostResponseDto;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
