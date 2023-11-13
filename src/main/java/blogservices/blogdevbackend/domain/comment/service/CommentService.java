@@ -9,7 +9,7 @@ public interface CommentService {
 
     List<CommentResponseDto> save(CommentRequestDto request);
 
-    List<CommentResponseDto> getComment(long postId);
+    List<CommentResponseDto> getComment(int postId);
 
     Long update(long commentId, CommentRequestDto request);
 
