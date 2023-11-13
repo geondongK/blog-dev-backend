@@ -7,6 +7,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class GlobalException extends RuntimeException {
 
-    private final GlobalErrorCode errorCode;
+    private final GlobalExceptionResponseCode errorCode;
 
 }
