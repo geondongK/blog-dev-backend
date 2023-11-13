@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
     private final PostRepository repository;
-
     private final AmazonS3 amazonS3;
 
     @Value("${cloud.aws.s3.bucket}")
@@ -41,7 +40,7 @@ public class PostServiceImpl implements PostService {
         // limit != 0;
         int page = offset / limit;
 
-        // Sort sort = Sort.by(Sort.Direction.DESC, "id", "createDate");
+        // 게시물 검색
         List<Post> entity = repository.findSliceBy(PageRequest.of(page, limit));
 
         return entity.stream().map(PostResponseDto::new).collect(Collectors.toList());
@@ -51,17 +50,15 @@ public class PostServiceImpl implements PostService {
     public List<PostResponseDto> getPost(long postId) {
         Optional<Post> entity = repository.findById(postId);
 
-        entity.get().increaseHits(); // 조회 수 증가
+        // 조회 수 증가
+        entity.get().increaseHits();
 
         return entity.stream().map(PostResponseDto::new).collect(Collectors.toList());
     }
 
     @Override
     public Long createPost(PostRequestDto request) {
-
-        log.info("createPost:: wrtierId = {}, writer = {}, description = {}, title = {} "
-                , request.getWriterId(), request.getWriter(), request.getDescription(), request.getTitle());
-
+        // 게시물 저장
         Post entity = repository.save(request.toEntity());
         return entity.getPostId();
     }
