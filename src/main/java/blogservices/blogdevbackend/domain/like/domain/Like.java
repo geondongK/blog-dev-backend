@@ -8,20 +8,17 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 
-@Entity
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity(name = "likes")
 @Table(name = "likes")
 public class Like {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(length = 11)
     private Integer likeId; // PK
-    @Column(length = 11)
     private Integer postId; // 게시물 PK
-    @Column(length = 11)
     private Integer commentId; // 댓글 PK
-    @Column(length = 20)
     private Long userId; // 사용자 PK
 
     @Builder
