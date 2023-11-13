@@ -5,13 +5,16 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommentRequestDto {
-    private Long postId; // 게시물 PK
+    private Integer postId; // 게시물 PK
     private Long writerId; // 작성자 PK
     private Long parentId; // 부모 댓글 PK
     private Integer commentGroup; // 부모 댓글 PK
+    @NotBlank
     private String description; // 내용
     private String writer; // 작성자
 
