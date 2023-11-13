@@ -41,9 +41,7 @@ public class LikeServiceImpl implements LikeService {
     /* 좋아요 삭제 */
     @Override
     public void deleteLike(int commentId, long userId) {
-
-        log.info("commentId = {}, userId = {}", commentId, userId);
-
+        
         Like entity = repository.findByCommentIdAndUserId(commentId, userId);
 
         repository.deleteById(entity.getLikeId());
