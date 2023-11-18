@@ -5,10 +5,4 @@ import lombok.Getter;
 @Getter
 public enum Role {
     ROLE_USER, ROLE_ADMIN;
-
-//    private String description;
-//
-//    Role(String description) {
-//        this.description = description;
-//    }
 }
