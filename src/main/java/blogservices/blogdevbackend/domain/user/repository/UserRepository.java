@@ -1,15 +1,13 @@
 package blogservices.blogdevbackend.domain.user.repository;
 
 import blogservices.blogdevbackend.domain.user.domain.User;
-import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
-
+@Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    User findByEmail(String email);
+    User findByEmail(String email); // 유저 찾기
 
     boolean existsByEmail(String email); // 이메일 중복 가입 방지
 
