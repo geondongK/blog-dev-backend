@@ -1,7 +1,5 @@
-package blogservices.blogdevbackend.global.auth;
+package blogservices.blogdevbackend.global.jwt.exception;
 
-import blogservices.blogdevbackend.global.exception.GlobalErrorCode;
-import blogservices.blogdevbackend.global.exception.GlobalException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -19,6 +17,10 @@ public class JwtAuthEntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request,
                          HttpServletResponse response,
                          AuthenticationException authException) throws IOException, ServletException {
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+
+        response.setContentType("application/json");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.getWriter().write("{ \"code\": \"401\", \"message\": \"Unauthorized\" }");
+        //response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
     }
 }
