@@ -6,15 +6,13 @@ import lombok.Getter;
 @Getter
 public class KakaoResponseDto {
     private final User user;
-    private final Integer exprTime;
+    private final Long expiresTime;
     private final String token;
 
 
-    public KakaoResponseDto(User user, Integer exprTime, String token) {
+    public KakaoResponseDto(User user, Long expiresTime, String token) {
         this.user = user;
-        this.exprTime = exprTime;
+        this.expiresTime = expiresTime;
         this.token = token;
     }
-
-
 }
