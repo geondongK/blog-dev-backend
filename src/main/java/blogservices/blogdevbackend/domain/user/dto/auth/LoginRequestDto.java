@@ -6,12 +6,16 @@ import lombok.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import javax.validation.constraints.NotBlank;
+
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class LoginRequestDto {
-    private String email;
-    private String password;
+    @NotBlank
+    private String email; // 이메일
+    @NotBlank
+    private String password; // 비밀번호
 
     private User toUser(PasswordEncoder passwordEncoder) {
         return User.builder()
