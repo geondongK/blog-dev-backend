@@ -11,11 +11,11 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PostRequestDto {
-    
+
     private Long writerId; // 작성자 PK
-    @NotBlank(message = "제목을 작성해 주세요.")
+    @NotBlank
     private String title; // 제목
-    @NotBlank(message = "본문을 작성해 주세요.")
+    @NotBlank
     private String description; // 내용
 
     private String writer; // 작성자
