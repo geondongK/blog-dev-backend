@@ -10,16 +10,17 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "refreshToken") // refresh_token
+@Table(name = "token")
 public class RefreshToken {
 
 
     //@GeneratedValue(strategy = GenerationType.IDENTITY)
     //private Long id;
     @Id
-    @Column(name = "keyId")
-    private String key; // key
-    private String token;
+    private Long userId; // 사용자 Id, SNS 로그인을 위해 따로등록
+    @Column(length = 50, name = "keyId")
+    private String key; // 이메일
+    private String token; // 토큰
 
 
     public RefreshToken updateToken(String token) {
@@ -28,8 +29,9 @@ public class RefreshToken {
     }
 
     @Builder
-    public RefreshToken(String key, String token) {
+    public RefreshToken(String key, Long userId, String token) {
         this.key = key;
+        this.userId = userId;
         this.token = token;
     }
 }
