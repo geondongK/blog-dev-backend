@@ -1,4 +1,4 @@
-package blogservices.blogdevbackend.global.auth;
+package blogservices.blogdevbackend.global.jwt.provider;
 
 import blogservices.blogdevbackend.domain.user.domain.Role;
 import blogservices.blogdevbackend.domain.user.dto.token.TokenDto;
@@ -7,8 +7,6 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,9 +15,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.security.Key;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -29,15 +25,13 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class JwtTokenProvider {
-    private final Logger LOGGER = LoggerFactory.getLogger(JwtTokenProvider.class);
 
     @Value("${spring.jwt.secret-key}")
     private String secretKey;
-    //@Value("${spring.jwt.access-token-exp}")
-    private final long accessTokenExpiresIn = 1;
-    //@Value("${spring.jwt.refresh-token-exp}")
-    private final long refreshTokenExpiresIn = 1000 * 60 * 60 * 24 * 7;
-
+    @Value("${spring.jwt.access-token-exp}")
+    private long accessTokenExpiresIn;
+    @Value("${spring.jwt.refresh-token-exp}")
+    private long refreshTokenExpiresIn;
 
     // secretKey를 Base64로 인코딩
     private Key getSignInKey() {
@@ -45,7 +39,7 @@ public class JwtTokenProvider {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public TokenDto generateToken(Long userId, Role roles) {
+    public TokenDto generateAccessToken(Long userId, Role roles) {
         // user 구분을 위해 Claims에 User Pk값 넣어줌
         Claims claims = Jwts.claims().setSubject(String.valueOf(userId));
 
@@ -53,14 +47,24 @@ public class JwtTokenProvider {
         Date now = new Date();
 
         String accessToken = Jwts.builder()
-                .setSubject(claims.getSubject()) // sub
+                .setSubject(claims.getSubject()) // 주체
                 .claim("roles", roles) // roles
                 //.setClaims(claims)
-                .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + accessTokenExpiresIn)) // exp
+                .setIssuedAt(now) // 생성일
+                .setExpiration(new Date(now.getTime() + accessTokenExpiresIn)) // 만료일
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256) // header
                 .compact();
 
+        return TokenDto.builder()
+                .grantType("Bearer")
+                .accessToken(accessToken)
+                .accessTokenExpiresIn(accessTokenExpiresIn)
+                .build();
+    }
+
+    public TokenDto generateRefreshToken(Long userId, Role roles) {
+        // 생성날짜, 만료날짜를 위한 Date
+        Date now = new Date();
 
         // Refresh 토큰 생성
         String refreshToken = Jwts.builder()
@@ -70,7 +74,6 @@ public class JwtTokenProvider {
 
         return TokenDto.builder()
                 .grantType("Bearer")
-                .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .accessTokenExpiresIn(accessTokenExpiresIn)
                 .build();
@@ -84,8 +87,6 @@ public class JwtTokenProvider {
             throw new RuntimeException("권한 정보가 없는 토큰입니다");
         }
 
-        log.info("claims = {}", claims.getSubject());
-
         // 클레임에서 권한 정보 가져오기.
         Collection<? extends GrantedAuthority> authorities =
                 Arrays.stream(claims.get("roles").toString().split(","))
@@ -95,17 +96,16 @@ public class JwtTokenProvider {
         // UserDetails 객체를 만들어서 Authentication 리턴
         UserDetails principal = new User(claims.getSubject(), "", authorities);
 
-        //log.info("principal154 = {}", principal);
-
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 
-    // jwt의 유효성 및 만료일자 확인
+    // JWT 검증
     public boolean validationToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(getSignInKey()).build().parseClaimsJws(token);
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+
             log.info("잘못된 JWT 서명입니다.");
         } catch (ExpiredJwtException e) {
             log.info("만료된 JWT 토큰입니다.");
@@ -115,16 +115,6 @@ public class JwtTokenProvider {
             log.info("JWT 토큰이 잘못되었습니다.");
         }
         return false;
-    }
-
-    // Request Header 에서 토큰 정보 꺼내오기..
-    public String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        // StringUtils.hasText() 문자열이 진정한 Text형태인지 확인합니다. 즉, null을 포함해서 공백만 존재한다면 False를 반환합니다
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
     }
 
     // 토큰 복호화
