@@ -1,6 +1,8 @@
 package blogservices.blogdevbackend.global.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.JDBCException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -13,6 +15,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.validation.ConstraintViolationException;
+import java.sql.SQLException;
 
 @Slf4j
 @RestControllerAdvice // 전역 예외 처리
@@ -47,5 +50,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(new GlobalExceptionResponse(e.getErrorCode()));
     }
 
-
+    @ExceptionHandler(value = {JDBCException.class, SQLException.class})
+    protected ResponseEntity<Object> handleSqlException(GlobalException e) {
+        GlobalExceptionResponseCode errorCode = GlobalExceptionResponseCode.DATABASE_ERROR;
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(new GlobalExceptionResponse(errorCode));
+    }
 }

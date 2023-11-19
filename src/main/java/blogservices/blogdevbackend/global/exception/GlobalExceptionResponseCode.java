@@ -17,6 +17,11 @@ public enum GlobalExceptionResponseCode {
     PASSWORD_NOT_SAME(HttpStatus.CONFLICT, "비밀번호가 일치하지 않습니다"),
     USER_NOT_FOUND(HttpStatus.CONFLICT, "이메일 또는 비밀번호가 틀렸습니다"),
 
+    /* 게시물 */
+    TITLE_LENGTH_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "제목은 50자 이내로 작성해 주세요"),
+    FILE_UPLOAD_TYPE_ERROR(HttpStatus.NOT_FOUND, "이미지 파일만 허용됩니다"),
+    FILE_UPLOAD_SIZE_ERROR(HttpStatus.NOT_FOUND, "파일 용량을 초과하였습니다."),
+
     /* 인증 */
     AUTHORIZATION_FAILED(HttpStatus.UNAUTHORIZED, "인증에 실패하였습니다"),
     FORBIDDEN_FAILED(HttpStatus.FORBIDDEN, "권한이 없습니다"),
