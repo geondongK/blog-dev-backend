@@ -25,18 +25,9 @@ public class OathController {
 
         // log.info("kakaoTokens::contorller = {}", kakaoTokens.getRefresh_token());
 
-        // 토큰, 토큰 만료시간, 리프레쉬 토큰
-        KakaoResponseDto user = oauthService.kakaoSaveUser(
-                kakaoTokens.getAccess_token(), kakaoTokens.getExpires_in(), kakaoTokens.getRefresh_token()
-        );
+        // 토큰
+        KakaoResponseDto user = oauthService.kakaoSaveUser(kakaoTokens.getAccess_token());
 
         return ResponseEntity.ok(user);
     }
-
-//    @PostMapping("/kakao/singup")
-//    public KakaoResponseDto signupKakao(@RequestParam("code") String code, @RequestBody SignupRequestDto request) {
-//        return null;
-//    }
-
-
 }

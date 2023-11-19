@@ -1,18 +1,15 @@
 package blogservices.blogdevbackend.domain.user.service.oauth;
 
 import blogservices.blogdevbackend.domain.user.domain.RefreshToken;
+import blogservices.blogdevbackend.domain.user.domain.Role;
 import blogservices.blogdevbackend.domain.user.domain.User;
-import blogservices.blogdevbackend.domain.user.dto.auth.LoginResponseDto;
 import blogservices.blogdevbackend.domain.user.dto.auth.SignupRequestDto;
 import blogservices.blogdevbackend.domain.user.dto.oauth.KakaoProfile;
 import blogservices.blogdevbackend.domain.user.dto.oauth.KakaoResponseDto;
 import blogservices.blogdevbackend.domain.user.dto.oauth.KakaoTokens;
-import blogservices.blogdevbackend.domain.user.dto.user.UserResponseDto;
+import blogservices.blogdevbackend.domain.user.dto.token.TokenDto;
 import blogservices.blogdevbackend.domain.user.repository.RefreshRepository;
 import blogservices.blogdevbackend.domain.user.repository.UserRepository;
-import blogservices.blogdevbackend.domain.user.service.auth.AuthService;
-import blogservices.blogdevbackend.global.exception.GlobalException;
-import blogservices.blogdevbackend.global.exception.GlobalResponseCode;
 import blogservices.blogdevbackend.global.jwt.provider.JwtTokenProvider;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +33,7 @@ public class OauthServiceImpl implements OauthService {
     private final Gson gson;
     private final UserRepository userRepository;
     private final RefreshRepository refreshRepository;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Value("${spring.oauth.kakao.client-id}")
     private String kakaoClientId;
@@ -44,7 +42,7 @@ public class OauthServiceImpl implements OauthService {
     private String kakaoRedirectUri;
 
     /* 카카오 이용자 저장 */
-    public KakaoResponseDto kakaoSaveUser(String token, Integer expiresIn, String refreshToken) {
+    public KakaoResponseDto kakaoSaveUser(String token) {
         // 카카오 로그인 정보 가져오기
         KakaoProfile profile = findKakaoProfile(token);
 
@@ -66,18 +64,20 @@ public class OauthServiceImpl implements OauthService {
 
         User getUser = userRepository.findByProviderId(profile.getId());
 
-        // log.info("expiresIn = {}, refreshToken = {}", expiresIn, refreshToken);
+        TokenDto getAccessToken = jwtTokenProvider.generateAccessToken(getUser.getUserId(), Role.ROLE_USER);
+        TokenDto getRefreshToken = jwtTokenProvider.generateRefreshToken(getUser.getUserId(), Role.ROLE_USER);
+
 
         // 리프레쉬 토큰 저장
         RefreshToken saveRefreshToken = RefreshToken.builder()
                 .userId(getUser.getUserId())
-                .token(refreshToken)
+                .token(getRefreshToken.getRefreshToken())
                 .build();
 
         refreshRepository.save(saveRefreshToken);
 
         // SNS 이용자 정보 반환.
-        KakaoResponseDto kakaoResponseDto = new KakaoResponseDto(getUser, expiresIn, token);
+        KakaoResponseDto kakaoResponseDto = new KakaoResponseDto(getUser, getAccessToken.getAccessTokenExpiresIn(), getAccessToken.getAccessToken());
 
         return kakaoResponseDto;
     }
@@ -133,12 +133,6 @@ public class OauthServiceImpl implements OauthService {
             log.error("Exception::Err_Msg = {}", e.getStackTrace()[0]);
         }
 
-        log.info("getKakaoTokens = {}", response.getBody());
-
         return kakaoTokens;
     }
-
-//    public KakaoResponseDto socialSignup (SignupRequestDto request) {
-//        return userRepository.save(request.toEntity());
-//    }
 }

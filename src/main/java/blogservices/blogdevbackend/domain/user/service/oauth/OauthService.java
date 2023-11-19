@@ -9,7 +9,7 @@ public interface OauthService {
 
     KakaoTokens getKakaoToken(String code);
 
-    KakaoResponseDto kakaoSaveUser(String token, Integer expiresIn, String refreshToken);
+    KakaoResponseDto kakaoSaveUser(String token);
 
     KakaoProfile findKakaoProfile(String kakaoAccessToken);
 
