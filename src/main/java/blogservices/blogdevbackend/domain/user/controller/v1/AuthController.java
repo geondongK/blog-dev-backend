@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 @RestController
@@ -35,15 +37,22 @@ public class AuthController {
 
     /* 로그인 */
     @PostMapping("/login")
-    public SingleResponse<LoginResponseDto> login(@RequestBody @Valid LoginRequestDto request) {
-        LoginResponseDto response = authService.login(request);
+    public SingleResponse<LoginResponseDto> login(@RequestBody @Valid LoginRequestDto request, HttpServletResponse cookieResponse) {
+        LoginResponseDto response = authService.login(request, cookieResponse);
         return responseService.getSingResponse(response);
+    }
+
+    /* 로그아웃 */
+    @PostMapping("logout")
+    public CommonResponse logout(HttpServletResponse response) {
+        authService.logout(response);
+        return responseService.getSuccessResponse();
     }
 
     /* 토큰 재발급 */
     @PostMapping("/reissue")
-    public ResponseEntity<TokenDto> reissue(@RequestBody TokenRequestDto request) {
-        TokenDto response = authService.reissue(request);
+    public ResponseEntity<TokenDto> reissue(TokenDto request, HttpServletRequest cookieRequest, HttpServletResponse cookieResponse) {
+        TokenDto response = authService.reissue(request, cookieRequest, cookieResponse);
         return ResponseEntity.ok(response);
     }
 }
