@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+
 @RestController
 @RequestMapping("/api/v1/oauth")
 @RequiredArgsConstructor
@@ -19,14 +21,14 @@ public class OathController {
 
     // JWT strings must contain exactly 2 period characters
     @GetMapping("/kakao/callback")
-    public ResponseEntity<KakaoResponseDto> getLogin(@RequestParam("code") String code) {
+    public ResponseEntity<KakaoResponseDto> getLogin(@RequestParam("code") String code, HttpServletResponse cookieResponse) {
 
         KakaoTokens kakaoTokens = oauthService.getKakaoToken(code);
 
         // log.info("kakaoTokens::contorller = {}", kakaoTokens.getRefresh_token());
 
         // 토큰
-        KakaoResponseDto user = oauthService.kakaoSaveUser(kakaoTokens.getAccess_token());
+        KakaoResponseDto user = oauthService.kakaoSaveUser(kakaoTokens.getAccess_token(), cookieResponse);
 
         return ResponseEntity.ok(user);
     }

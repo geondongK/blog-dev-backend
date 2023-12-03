@@ -10,6 +10,7 @@ import blogservices.blogdevbackend.domain.user.dto.oauth.KakaoTokens;
 import blogservices.blogdevbackend.domain.user.dto.token.TokenDto;
 import blogservices.blogdevbackend.domain.user.repository.RefreshRepository;
 import blogservices.blogdevbackend.domain.user.repository.UserRepository;
+import blogservices.blogdevbackend.global.common.cookies.CookiesUtil;
 import blogservices.blogdevbackend.global.jwt.provider.JwtTokenProvider;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+
+import javax.servlet.http.HttpServletResponse;
 
 
 @Service
@@ -42,7 +45,8 @@ public class OauthServiceImpl implements OauthService {
     private String kakaoRedirectUri;
 
     /* 카카오 이용자 저장 */
-    public KakaoResponseDto kakaoSaveUser(String token) {
+    @Override
+    public KakaoResponseDto kakaoSaveUser(String token, HttpServletResponse cookieResponse) {
         // 카카오 로그인 정보 가져오기
         KakaoProfile profile = findKakaoProfile(token);
 
@@ -76,6 +80,9 @@ public class OauthServiceImpl implements OauthService {
 
         refreshRepository.save(saveRefreshToken);
 
+        // 쿠키 생성
+        CookiesUtil.setCookies(cookieResponse, "token", getAccessToken.getAccessToken());
+
         // SNS 이용자 정보 반환.
         KakaoResponseDto kakaoResponseDto = new KakaoResponseDto(getUser, getAccessToken.getAccessTokenExpiresIn(), getAccessToken.getAccessToken());
 
@@ -83,6 +90,7 @@ public class OauthServiceImpl implements OauthService {
     }
 
     /* 카카오 이용자 정보 가져오기 */
+    @Override
     public KakaoProfile findKakaoProfile(String kakaoAccessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -108,6 +116,7 @@ public class OauthServiceImpl implements OauthService {
     }
 
     /* 카카오 토큰 가져오기 */
+    @Override
     public KakaoTokens getKakaoToken(String code) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
